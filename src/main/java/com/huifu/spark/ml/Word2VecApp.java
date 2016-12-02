@@ -5,8 +5,7 @@ import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.hadoop.hbase.spark.JavaHBaseContext;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -31,12 +30,12 @@ public class Word2VecApp {
     SQLContext sqlContext = new SQLContext(jsc);
     // Connect to Hbase table BD_PAGE_REPOSITORY
     Configuration conf = HBaseConfiguration.create();
-    JavaHBaseContext hbaseContext = new JavaHBaseContext(jsc, conf);
-    
-    Configuration conf = HBaseConfiguration.create();
-    // 设置查询条件，这里值返回用户的等级
-    Scan scan = new Scan();
-    scan.addColumn(Bytes.toBytes("URL"),Bytes.toBytes("filteredPlainText"));
+     JavaHBaseContext hbaseContext = new JavaHBaseContext(jsc, conf);
+//    
+//    Configuration conf = HBaseConfiguration.create();
+//    // 设置查询条件，这里值返回用户的等级
+//    Scan scan = new Scan();
+//    scan.addColumn(Bytes.toBytes("URL"),Bytes.toBytes("filteredPlainText"));
     
     // Input data: Each row is a bag of words from a sentence or document.
     JavaRDD<Row> jrdd = jsc.parallelize(
