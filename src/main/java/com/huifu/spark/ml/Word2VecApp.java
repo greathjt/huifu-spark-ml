@@ -33,11 +33,24 @@ import scala.Tuple2;
 public class Word2VecApp {
   public static void main(String[] args) {
     // create spark context
+    System.setProperty("hadoop.home.dir", "c:\\\\winutil\\\\");
     SparkConf scf = new SparkConf().setMaster("local").setAppName("Word2VecApp");
     JavaSparkContext jsc = new JavaSparkContext(scf);
     SQLContext sqlContext = new SQLContext(jsc);
     // Connect to Hbase table BD_PAGE_REPOSITORY
+    String env = "local";
+    String coreSiteXml = "classpath:core-site-" + env + ".xml";
+    String hbaseSiteXml = "classpath:hbase-site-" + env + ".xml";
+    String mapredSiteXml = "classpath:mapred-site-" + env + ".xml";
+    String hdfsSiteXml = "classpath:hdfs-site-" + env + ".xml";
+    String yarnSiteXml = "classpath:yarn-site-" + env + ".xml";
     Configuration conf = HBaseConfiguration.create();
+    conf.addResource(coreSiteXml);
+    conf.addResource(hbaseSiteXml);
+    conf.addResource(mapredSiteXml);
+    conf.addResource(hdfsSiteXml);
+    conf.addResource(yarnSiteXml);
+
     JavaHBaseContext hbaseContext = new JavaHBaseContext(jsc, conf);
     Scan scan = new Scan();
     scan.addColumn(Bytes.toBytes("URL"), Bytes.toBytes("filteredPlainText"));
@@ -47,7 +60,7 @@ public class Word2VecApp {
         hbaseContext.hbaseRDD(TableName.valueOf("BD_PAGE_REPOSITORY"), scan);
     JavaRDD<Row> jrdd = javaRdd.map(new ScanConvertFunction());
     // Input data: Each row is a bag of words from a sentence or document.
-    // JavaRDD<Row> jrdd = jsc.parallelize(
+    // JavaRDD<Row> jrdd2 = jsc.parallelize(
     // Arrays.asList(RowFactory.create(Arrays.asList("Hi I heard about Spark".split(" "))),
     // RowFactory.create(Arrays.asList("I wish Java could use case classes".split(" "))),
     // RowFactory.create(Arrays.asList("Logistic regression models are neat".split(" ")))));
@@ -74,7 +87,9 @@ public class Word2VecApp {
     @Override
     public Row call(Tuple2<ImmutableBytesWritable, Result> tuple) throws Exception {
       String page = Bytes.toString(tuple._2().value());
-      return null;
+      System.out.println("//////////" + page);
+      // 对page去噪、分词，page2words
+      return RowFactory.create(Arrays.asList("Hi I heard about Spark".split(" ")));
     }
 
   }
