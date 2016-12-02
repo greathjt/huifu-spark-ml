@@ -72,10 +72,10 @@ public class Word2VecApp {
   private static class ScanConvertFunction
       implements Function<Tuple2<ImmutableBytesWritable, Result>, Row> {
     @Override
-    public Row call(Tuple2<ImmutableBytesWritable, Result> arg0) throws Exception {
+    public Row call(Tuple2<ImmutableBytesWritable, Result> tuple) throws Exception {
+      String page = Bytes.toString(tuple._2().value());
       return null;
     }
-
 
   }
 
