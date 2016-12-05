@@ -4,7 +4,7 @@
 <configuration>
   <property>
     <name>fs.defaultFS</name>
-    <value>hdfs://192.168.3.118:8020</value>
+    <value>hdfs://hadoop2:8020</value>
   </property>
   <property>
     <name>fs.trash.interval</name>
@@ -108,18 +108,6 @@
   </property>
   <property>
     <name>hadoop.security.instrumentation.requires.admin</name>
-    <value>false</value>
-  </property>
-  <property>
-    <name>net.topology.script.file.name</name>
-    <value>/etc/hadoop/conf.cloudera.yarn/topology.py</value>
-  </property>
-  <property>
-    <name>io.file.buffer.size</name>
-    <value>65536</value>
-  </property>
-  <property>
-    <name>hadoop.ssl.enabled</name>
     <value>false</value>
   </property>
   <property>

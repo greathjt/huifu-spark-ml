@@ -4,7 +4,7 @@
 <configuration>
   <property>
     <name>hbase.rootdir</name>
-    <value>hdfs://192.168.3.118:8020/hbase</value>
+    <value>hdfs://hadoop2:8020/hbase</value>
   </property>
   <property>
     <name>hbase.client.write.buffer</name>
@@ -92,7 +92,7 @@
   </property>
   <property>
     <name>hbase.zookeeper.quorum</name>
-    <value>192.168.3.118,192.168.3.207,192.168.3.117</value>
+    <value>hadoop2,arch3,hadoop1</value>
   </property>
   <property>
     <name>hbase.zookeeper.property.clientPort</name>
