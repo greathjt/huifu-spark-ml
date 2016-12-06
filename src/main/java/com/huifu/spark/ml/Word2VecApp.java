@@ -1,5 +1,8 @@
 package com.huifu.spark.ml;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,23 +36,54 @@ import com.huaban.analysis.jieba.JiebaSegmenter;
 import scala.Tuple2;
 
 public class Word2VecApp {
-  public static void main(String[] args) {
-    // create spark context
+  static String data_vec = "/tmp/model/";
+  static SparkConf scf;
+  static JavaSparkContext jsc;
+  static Configuration conf;
+  static SQLContext sqlContext;
+
+  public static void main(String[] args) throws IOException {
+    // init context
     System.setProperty("hadoop.home.dir", "c:\\\\winutil\\\\");
-    SparkConf scf = new SparkConf().setMaster("local").setAppName("Word2VecApp");
-    JavaSparkContext jsc = new JavaSparkContext(scf);
-    SQLContext sqlContext = new SQLContext(jsc);
+    scf = new SparkConf().setMaster("local").setAppName("Word2VecApp");
+    jsc = new JavaSparkContext(scf);
+    sqlContext = new SQLContext(jsc);
     // Connect to Hbase table BD_PAGE_REPOSITORY
     String coreSiteXml = "classpath:core-site.xml";
     String hbaseSiteXml = "classpath:hbase-site.xml";
     String hdfsSiteXml = "classpath:hdfs-site.xml";
     String yarnSiteXml = "classpath:ssl-client.xml";
-    Configuration conf = HBaseConfiguration.create();
+    conf = HBaseConfiguration.create();
     conf.addResource(coreSiteXml);
     conf.addResource(hbaseSiteXml);
     conf.addResource(hdfsSiteXml);
     conf.addResource(yarnSiteXml);
+    // create and save model
+    createAndSaveWord2VecModel();
+    // Find similar word
+    findWordSynonyms("诈骗");
+    // keywords' synonyms
+    // String[] keyWords =
+    // "无耻,诈骗,骗子,垃圾,跑路,失联,维权,欺骗,造假,无法取现,不让取现,提现困难,坑爹,黑名单,曝光,自融,作死,坑,忽悠,警惕,疑似,小心,泄露,恶意,撤销,忠告,不能提现,危险,提现,谎称,信息披露,嫌疑,虚假,涉嫌,卑鄙,血汗钱,预警,奇葩,澄清,亏空,待收,证据,失信,忽悠,逾期,人去楼空,虚假标的,揭发,电话打不通,不兑现,圈套,破案,案件,还我钱,被抓,风险,取保候审,小心,非法,集资,警察,立案"
+    // .split(",");
+    // String[] keyWords = "Logistic,regression,models,are,neat".split(",");
+    /**
+     * for (String keyWord : keyWords) { try { List<Row> result = model.findSynonyms(keyWord,
+     * 25).collectAsList(); System.out.println("keyword:" + keyWord + ",synonyms:" +
+     * result.toString()); } catch (Exception e) { e.printStackTrace(); } }
+     **/
+  }
 
+  private static void findWordSynonyms(String str) {
+    Word2VecModel model = Word2VecModel.load(data_vec);
+    // Find similar word
+    DataFrame similar = model.findSynonyms(str, 30);
+    for (int i = 0; i < similar.count(); i++) {
+      System.out.println(similar.showString(i, false));
+    }
+  }
+
+  private static void createAndSaveWord2VecModel() throws IOException {
     JavaHBaseContext hbaseContext = new JavaHBaseContext(jsc, conf);
     Scan scan = new Scan();
     scan.addColumn(Bytes.toBytes("URL"), Bytes.toBytes("filteredPlainText"));
@@ -81,20 +115,12 @@ public class Word2VecApp {
     // Vector vector = (Vector) row.get(1);
     // System.out.println("Text: " + text + " => \nVector: " + vector + "\n");
     // }
-    String[] keyWords =
-        "无耻,诈骗,骗子,垃圾,跑路,失联,维权,欺骗,造假,无法取现,不让取现,提现困难,坑爹,黑名单,曝光,自融,作死,坑,忽悠,警惕,疑似,小心,泄露,恶意,撤销,忠告,不能提现,危险,提现,谎称,信息披露,嫌疑,虚假,涉嫌,卑鄙,血汗钱,预警,奇葩,澄清,亏空,待收,证据,失信,忽悠,逾期,人去楼空,虚假标的,揭发,电话打不通,不兑现,圈套,破案,案件,还我钱,被抓,风险,取保候审,小心,非法,集资,警察,立案"
-            .split(",");
-    // String[] keyWords = "Logistic,regression,models,are,neat".split(",");
-    for (String keyWord : keyWords) {
-      try {
-        List<Row> result = model.findSynonyms(keyWord, 25).collectAsList();
-        // System.out.println("Text: " + keyWord result.get(0).getString(0) );
-        // System.out.println("Text: " + result );
-        System.out.println("keyword:" + keyWord + ",synonyms:" + result.toString());
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-    }
+    model.write().overwrite().save(data_vec);
+    // if (!new File(data_vec).exists()) {
+    // model.save(data_vec);
+    // } else {
+    //
+    // }
   }
 
   private static class ScanConvertFunction
