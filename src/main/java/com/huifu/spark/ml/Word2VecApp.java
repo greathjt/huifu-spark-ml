@@ -36,7 +36,7 @@ import com.huaban.analysis.jieba.JiebaSegmenter;
 import scala.Tuple2;
 
 public class Word2VecApp {
-  static String data_vec = "/tmp/model/";
+  //static String data_vec = "/tmp/model/";
   static SparkConf scf;
   static JavaSparkContext jsc;
   static Configuration conf;
@@ -59,9 +59,9 @@ public class Word2VecApp {
     conf.addResource(hdfsSiteXml);
     conf.addResource(yarnSiteXml);
     // create and save model
-    createAndSaveWord2VecModel();
+    Word2VecModel model = createWord2VecModel();
     // Find similar word
-    findWordSynonyms("诈骗");
+    findWordSynonyms("诈骗",model);
     // keywords' synonyms
     // String[] keyWords =
     // "无耻,诈骗,骗子,垃圾,跑路,失联,维权,欺骗,造假,无法取现,不让取现,提现困难,坑爹,黑名单,曝光,自融,作死,坑,忽悠,警惕,疑似,小心,泄露,恶意,撤销,忠告,不能提现,危险,提现,谎称,信息披露,嫌疑,虚假,涉嫌,卑鄙,血汗钱,预警,奇葩,澄清,亏空,待收,证据,失信,忽悠,逾期,人去楼空,虚假标的,揭发,电话打不通,不兑现,圈套,破案,案件,还我钱,被抓,风险,取保候审,小心,非法,集资,警察,立案"
@@ -74,8 +74,7 @@ public class Word2VecApp {
      **/
   }
 
-  private static void findWordSynonyms(String str) {
-    Word2VecModel model = Word2VecModel.load(data_vec);
+  private static void findWordSynonyms(String str,Word2VecModel model) {
     // Find similar word
     DataFrame similar = model.findSynonyms(str, 30);
     for (int i = 0; i < similar.count(); i++) {
@@ -83,7 +82,7 @@ public class Word2VecApp {
     }
   }
 
-  private static void createAndSaveWord2VecModel() throws IOException {
+  private static Word2VecModel createWord2VecModel() throws IOException {
     JavaHBaseContext hbaseContext = new JavaHBaseContext(jsc, conf);
     Scan scan = new Scan();
     scan.addColumn(Bytes.toBytes("URL"), Bytes.toBytes("filteredPlainText"));
@@ -115,12 +114,13 @@ public class Word2VecApp {
     // Vector vector = (Vector) row.get(1);
     // System.out.println("Text: " + text + " => \nVector: " + vector + "\n");
     // }
-    model.write().overwrite().save(data_vec);
+    //model.write().overwrite().save(data_vec);
     // if (!new File(data_vec).exists()) {
     // model.save(data_vec);
     // } else {
     //
     // }
+    return model;
   }
 
   private static class ScanConvertFunction
