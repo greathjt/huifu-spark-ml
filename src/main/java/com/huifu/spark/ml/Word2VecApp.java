@@ -1,9 +1,6 @@
 package com.huifu.spark.ml;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,7 +33,7 @@ import com.huaban.analysis.jieba.JiebaSegmenter;
 import scala.Tuple2;
 
 public class Word2VecApp {
-  //static String data_vec = "/tmp/model/";
+  // static String data_vec = "/tmp/model/";
   static SparkConf scf;
   static JavaSparkContext jsc;
   static Configuration conf;
@@ -44,8 +41,8 @@ public class Word2VecApp {
 
   public static void main(String[] args) throws IOException {
     // init context
-    System.setProperty("hadoop.home.dir", "c:\\\\winutil\\\\");
-    scf = new SparkConf().setMaster("local").setAppName("Word2VecApp");
+    // System.setProperty("hadoop.home.dir", "c:\\\\winutil\\\\");
+    scf = new SparkConf().setAppName("Word2VecApp");
     jsc = new JavaSparkContext(scf);
     sqlContext = new SQLContext(jsc);
     // Connect to Hbase table BD_PAGE_REPOSITORY
@@ -61,7 +58,7 @@ public class Word2VecApp {
     // create and save model
     Word2VecModel model = createWord2VecModel();
     // Find similar word
-    findWordSynonyms("诈骗",model);
+    findWordSynonyms("造假", model);
     // keywords' synonyms
     // String[] keyWords =
     // "无耻,诈骗,骗子,垃圾,跑路,失联,维权,欺骗,造假,无法取现,不让取现,提现困难,坑爹,黑名单,曝光,自融,作死,坑,忽悠,警惕,疑似,小心,泄露,恶意,撤销,忠告,不能提现,危险,提现,谎称,信息披露,嫌疑,虚假,涉嫌,卑鄙,血汗钱,预警,奇葩,澄清,亏空,待收,证据,失信,忽悠,逾期,人去楼空,虚假标的,揭发,电话打不通,不兑现,圈套,破案,案件,还我钱,被抓,风险,取保候审,小心,非法,集资,警察,立案"
@@ -74,7 +71,7 @@ public class Word2VecApp {
      **/
   }
 
-  private static void findWordSynonyms(String str,Word2VecModel model) {
+  private static void findWordSynonyms(String str, Word2VecModel model) {
     // Find similar word
     DataFrame similar = model.findSynonyms(str, 30);
     for (int i = 0; i < similar.count(); i++) {
@@ -114,7 +111,7 @@ public class Word2VecApp {
     // Vector vector = (Vector) row.get(1);
     // System.out.println("Text: " + text + " => \nVector: " + vector + "\n");
     // }
-    //model.write().overwrite().save(data_vec);
+    // model.write().overwrite().save(data_vec);
     // if (!new File(data_vec).exists()) {
     // model.save(data_vec);
     // } else {
