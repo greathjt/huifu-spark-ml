@@ -42,7 +42,7 @@ public class Word2VecApp {
   public static void main(String[] args) throws IOException {
     // init context
     // System.setProperty("hadoop.home.dir", "c:\\\\winutil\\\\");
-    scf = new SparkConf().setAppName("Word2VecApp");
+    scf = new SparkConf().setMaster("local").setAppName("Word2VecApp");
     jsc = new JavaSparkContext(scf);
     sqlContext = new SQLContext(jsc);
     // Connect to Hbase table BD_PAGE_REPOSITORY
